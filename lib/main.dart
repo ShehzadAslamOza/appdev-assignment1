@@ -91,7 +91,7 @@ class _JobListingPageState extends State<JobListingPage> {
             label: 'Jobs',
           ),
           NavigationDestination(
-            icon: Icon(Icons.notifications_sharp),
+            icon: Icon(Icons.person_2_outlined),
             label: 'Resume',
           ),
           NavigationDestination(
