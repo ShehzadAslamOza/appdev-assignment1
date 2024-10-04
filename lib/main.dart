@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(const JobListingApp());
@@ -12,6 +14,7 @@ class Job {
   final String? location;
   final String? jobType;
   final String? timePosted;
+  final int? daysAgo;
 
   Job({
     required this.jobTitle,
@@ -20,7 +23,27 @@ class Job {
     required this.location,
     required this.jobType,
     required this.timePosted,
+    this.daysAgo = 0,
   });
+
+  factory Job.fromJson(Map<String, dynamic> json) {
+    return Job(
+      jobTitle: json['job']['title'],
+      companyName: json['job']['company']['name'],
+      companyLogo: json['job']['company']['logo'],
+      location: json['job']['location']['name_en'],
+      jobType: json['job']['type']['name_en'],
+      timePosted: json['job']['updated_date'],
+      daysAgo:
+          calculateDaysDifference(json['job']['updated_date'], DateTime.now()),
+    );
+  }
+}
+
+int calculateDaysDifference(String updatedDate, DateTime now) {
+  final formatter = DateFormat('yyyy-MM-dd');
+  final jobDate = formatter.parse(updatedDate);
+  return now.difference(jobDate).inDays;
 }
 
 class JobListingApp extends StatelessWidget {
@@ -45,92 +68,27 @@ class JobListingPage extends StatefulWidget {
 class _JobListingPageState extends State<JobListingPage> {
   int currentPageIndex = 0;
   List<Job> jobList = [];
-  bool isLoading = false;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    fetchJobs();
+  }
 
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
-
-    jobList.add(Job(
-        jobTitle: "Software Engineer",
-        companyName: "Securiti",
-        companyLogo:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTAZFb34F2ekG1ugdoXax1skq4_s1_t-5xkfQ&s",
-        location: "Karachi",
-        jobType: "Internship",
-        timePosted: "4 days ago"));
+  Future<void> fetchJobs() async {
+    final response = await http
+        .get(Uri.parse('https://mpa0771a40ef48fcdfb7.free.beeceptor.com/jobs'));
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final jobsData = data['data'] as List;
+      setState(() {
+        jobList = jobsData.map((jobData) => Job.fromJson(jobData)).toList();
+        isLoading = false;
+      });
+    } else {
+      throw Exception('Failed to fetch jobs');
+    }
   }
 
   @override
@@ -139,7 +97,7 @@ class _JobListingPageState extends State<JobListingPage> {
 
     final List<Widget> pages = [
       isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(child: const CircularProgressIndicator())
           : jobList.isEmpty
               ? Center(
                   child: Text('No jobs available',
@@ -191,7 +149,7 @@ class _JobListingPageState extends State<JobListingPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Text('${job.timePosted}',
+                                Text('${job.daysAgo} days ago',
                                     style:
                                         TextStyle(color: Colors.grey.shade500))
                               ],
