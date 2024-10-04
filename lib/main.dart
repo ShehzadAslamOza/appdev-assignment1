@@ -203,19 +203,30 @@ class _JobListingPageState extends State<JobListingPage> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Colors.grey,
+        indicatorColor: Color.fromARGB(0, 0, 0, 0),
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
-            selectedIcon: Icon(Icons.home),
-            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(
+              Icons.cases_outlined,
+              color: Colors.purple,
+            ),
+            icon: Icon(Icons.cases_outlined),
             label: 'Jobs',
           ),
           NavigationDestination(
+            selectedIcon: Icon(
+              Icons.person_2_outlined,
+              color: Colors.purple,
+            ),
             icon: Icon(Icons.person_2_outlined),
             label: 'Resume',
           ),
           NavigationDestination(
+            selectedIcon: Icon(
+              Icons.settings,
+              color: Colors.purple,
+            ),
             icon: Icon(Icons.settings),
             label: 'Settings',
           ),
