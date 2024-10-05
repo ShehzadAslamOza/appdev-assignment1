@@ -3,10 +3,12 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 
+// This is the main function that runs the app
 void main() {
   runApp(const JobListingApp());
 }
 
+// This is the data model for a job
 class Job {
   final String? jobTitle;
   final String? companyName;
@@ -16,6 +18,7 @@ class Job {
   final String? timePosted;
   final int? daysAgo;
 
+  // This is the constructor for the Job class
   Job({
     required this.jobTitle,
     required this.companyName,
@@ -26,6 +29,7 @@ class Job {
     this.daysAgo = 0,
   });
 
+  // This is a factory method for creating a Job object from a JSON object
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
       jobTitle: json['job']['title'],
@@ -40,12 +44,14 @@ class Job {
   }
 }
 
+// This is a function that calculates the number of days between two dates
 int calculateDaysDifference(String updatedDate, DateTime now) {
   final formatter = DateFormat('yyyy-MM-dd');
   final jobDate = formatter.parse(updatedDate);
   return now.difference(jobDate).inDays;
 }
 
+// This is the main widget that contains the app
 class JobListingApp extends StatelessWidget {
   const JobListingApp({super.key});
 
@@ -58,6 +64,7 @@ class JobListingApp extends StatelessWidget {
   }
 }
 
+// This is the widget that contains the list of jobs
 class JobListingPage extends StatefulWidget {
   const JobListingPage({super.key});
 
@@ -65,17 +72,20 @@ class JobListingPage extends StatefulWidget {
   State<JobListingPage> createState() => _JobListingPageState();
 }
 
+// This is the state class for the JobListingPage widget
 class _JobListingPageState extends State<JobListingPage> {
   int currentPageIndex = 0;
   List<Job> jobList = [];
   bool isLoading = true;
 
+// This method is called when the widget is initiated
   @override
   void initState() {
     super.initState();
     fetchJobs();
   }
 
+  // This is the method that fetches the jobs from the API
   Future<void> fetchJobs() async {
     final response = await http
         .get(Uri.parse('https://mpa0771a40ef48fcdfb7.free.beeceptor.com/jobs'));
@@ -91,11 +101,13 @@ class _JobListingPageState extends State<JobListingPage> {
     }
   }
 
+  // This is the method that builds the UI for the JobListingPage widget
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
     final List<Widget> pages = [
+      // This is the widget that is displayed when the jobs are loading
       isLoading
           ? Center(child: const CircularProgressIndicator())
           : jobList.isEmpty
@@ -118,6 +130,7 @@ class _JobListingPageState extends State<JobListingPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          // This is the widget that displays the job information
                           ListTile(
                             leading: Container(
                               decoration: BoxDecoration(
@@ -144,6 +157,7 @@ class _JobListingPageState extends State<JobListingPage> {
                               ],
                             ),
                           ),
+                          // This is the widget that displays the number of days since the job was posted
                           Container(
                             margin: EdgeInsets.fromLTRB(0, 4, 16, 8),
                             child: Row(
@@ -160,12 +174,14 @@ class _JobListingPageState extends State<JobListingPage> {
                     );
                   },
                 ),
+      // This is the widget that is displayed when the user is on the resume page
       Center(
         child: Text(
           'Resume Page',
           style: theme.textTheme.titleLarge,
         ),
       ),
+      // This is the widget that is displayed when the user is on the settings page
       Center(
         child: Text(
           'Settings Page',
