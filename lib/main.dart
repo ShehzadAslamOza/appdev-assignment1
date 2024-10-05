@@ -80,7 +80,7 @@ class _JobListingPageState extends State<JobListingPage> {
     final response = await http
         .get(Uri.parse('https://mpa0771a40ef48fcdfb7.free.beeceptor.com/jobs'));
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(utf8.decode(response.body.codeUnits));
       final jobsData = data['data'] as List;
       setState(() {
         jobList = jobsData.map((jobData) => Job.fromJson(jobData)).toList();
